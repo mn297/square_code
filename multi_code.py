@@ -194,6 +194,20 @@ symbols_dict = {
     '8': SquareSymbol('8', [color_dict['red'], color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['grey']], 2),
     '9': SquareSymbol('9', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['white'], color_dict['grey']], 2),
 
+    '-': SquareSymbol('-', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red']], 1),
+    ',': SquareSymbol(',', [color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['red']], 1),
+    '?': SquareSymbol('?', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['red'], color_dict['grey']], 1),
+    '!': SquareSymbol('!', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['white']], 1),
+    '\'': SquareSymbol('\'', [color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['white']], 1),
+    '\"': SquareSymbol('\"', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['white']], 1),
+    '/': SquareSymbol('/', [color_dict['red'], color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['grey']], 1),
+    ':': SquareSymbol(':', [color_dict['grey'], color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['red']], 1),
+    ';': SquareSymbol(';', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['red'], color_dict['grey']], 1),
+    '(': SquareSymbol('(', [color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['white'], color_dict['red']], 1),
+    ')': SquareSymbol(')', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['red']], 1),
+    '@': SquareSymbol('@', [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['red'], color_dict['grey']], 1),
+    '[': SquareSymbol('[', [color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['white'], color_dict['red']], 1),
+    ']': SquareSymbol(']', [color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['grey'], color_dict['white']], 1),
 
 
 }
@@ -213,7 +227,7 @@ color_dict = {
 # Example usage for a sentence
 if __name__ == '__main__':
     sentence = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    sentence2 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    sentence2 = ".,?!\'\"-/:;()&@\\[]{}<>#%_*+-"
     # Example with 2 rows and 6 columns
     plot_sentence(sentence, 6, 6)
     plot_sentence(sentence2, 6, 6)
