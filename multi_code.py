@@ -70,13 +70,13 @@ def generate_alphabet_square(ax, square_symbol_obj, offset_x=0, offset_y=0):
     case_3 = [
         np.array([[0, 3], [1, 3], [1, 2]]),
         np.array([[1, 2], [1, 3], [2, 3], [2, 1]]),
-        np.array([[2, 3], [2, 1], [3, 3], [3, 0]]),
+        np.array([[2, 1], [2, 3], [3, 3], [3, 0]]),
         np.array([[0, 0], [0, 3], [1, 2], [1, 0]]),
         np.array([[1, 0], [1, 2], [3, 0]]),
     ]
     case_4 = [
-        np.array([[0, 3], [2, 1], [2, 3]]),
-        np.array([[2, 3], [2, 1], [3, 0], [3, 3]]),
+        np.array([[0, 3], [2, 3], [2, 1]]),
+        np.array([[2, 1], [2, 3], [3, 3], [3, 0]]),
         np.array([[0, 0], [0, 3], [1, 2], [1, 0]]),
         np.array([[1, 0], [1, 2], [2, 1], [2, 0]]),
         np.array([[2, 0], [2, 1], [3, 0]]),
@@ -194,21 +194,37 @@ symbols_dict = {
     '8': SquareSymbol('8', [color_dict['red'], color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['grey']], 2),
     '9': SquareSymbol('9', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['white'], color_dict['grey']], 2),
 
-    '-': SquareSymbol('-', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red']], 1),
-    ',': SquareSymbol(',', [color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['red']], 1),
-    '?': SquareSymbol('?', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['red'], color_dict['grey']], 1),
-    '!': SquareSymbol('!', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['white']], 1),
-    '\'': SquareSymbol('\'', [color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['white']], 1),
-    '\"': SquareSymbol('\"', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['white']], 1),
-    '/': SquareSymbol('/', [color_dict['red'], color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['grey']], 1),
-    ':': SquareSymbol(':', [color_dict['grey'], color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['red']], 1),
-    ';': SquareSymbol(';', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['red'], color_dict['grey']], 1),
-    '(': SquareSymbol('(', [color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['white'], color_dict['red']], 1),
-    ')': SquareSymbol(')', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['red']], 1),
-    '@': SquareSymbol('@', [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['red'], color_dict['grey']], 1),
-    '[': SquareSymbol('[', [color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['white'], color_dict['red']], 1),
-    ']': SquareSymbol(']', [color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['grey'], color_dict['white']], 1),
+    '.': SquareSymbol('-', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red']], 3),
+    ',': SquareSymbol(',', [color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['red']], 3),
+    '?': SquareSymbol('?', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['red'], color_dict['grey']], 3),
+    '!': SquareSymbol('!', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['white']], 3),
+    '\'': SquareSymbol('\'', [color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['white']], 3),
+    '\"': SquareSymbol('\"', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['white']], 3),
+    '-': SquareSymbol('-', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red']], 3),
+    '/': SquareSymbol('/', [color_dict['red'], color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['grey']], 3),
+    ':': SquareSymbol(':', [color_dict['grey'], color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['red']], 3),
+    ';': SquareSymbol(';', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['red'], color_dict['grey']], 4),
+    '(': SquareSymbol('(', [color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['white'], color_dict['red']], 4),
+    ')': SquareSymbol(')', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['red']], 4),
+    '&': SquareSymbol('&', [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['red'], color_dict['grey']], 4),
+    '@': SquareSymbol('@', [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['red'], color_dict['grey']], 4),
+    '\\': SquareSymbol('\\', [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['red'], color_dict['grey']], 4),
+    '[': SquareSymbol('[', [color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['white'], color_dict['red']], 4),
+    ']': SquareSymbol(']', [color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['grey'], color_dict['white']], 4),
+    '{': SquareSymbol('{', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['red'], color_dict['grey']], 4),
+    '}': SquareSymbol('}', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['grey'], color_dict['red']], 4),
+    '<': SquareSymbol('<', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['grey']], 4),
+    '>': SquareSymbol('>', [color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['white']], 4),
+    '#': SquareSymbol('#', [color_dict['grey'], color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['red']], 4),
+    '%': SquareSymbol('%', [color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['white']], 4),
+    '_': SquareSymbol('_', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['red']], 4),
+    '*': SquareSymbol('*', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['grey']], 4),
+    '+': SquareSymbol('+', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['white']], 4),
+    '=': SquareSymbol('=', [color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['grey']], 4),
 
+    # dau sac all occurences
+    'ắ': SquareSymbol('ắ', [color_dict['red'], color_dict['white'], color_dict['white'], color_dict['red'], color_dict['grey']], 3),
+    'Ắ': SquareSymbol('Ắ', [color_dict['red'], color_dict['white'], color_dict['white'], color_dict['red'], color_dict['grey']], 3),
 
 }
 
@@ -224,6 +240,42 @@ color_dict = {
     'grey': '#808080',
     'black': '#000000'
 }
+
+
+# Assume color_dict and SquareSymbol are defined elsewhere
+color_patterns = {
+    'acute': [color_dict['red'], color_dict['white'], color_dict['white'], color_dict['red'], color_dict['grey']],
+    'grave': [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['red']],
+    'hook': [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['red'], color_dict['grey']],
+    'tilde': [color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['white']],
+    'dot': [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red']],
+}
+
+# Function to populate symbols_dict with all Vietnamese characters for each accent type
+
+
+def populate_vietnamese_symbols():
+    base_chars = 'AEIOUYaeiouy'
+    accents = {
+        'acute': 'ÁÉÍÓÚÝáéíóúý',
+        'grave': 'ÀÈÌÒÙỲàèìòùỳ',
+        'hook': 'ẢẺỈỎỦỶảẻỉỏủỷ',
+        'tilde': 'ÃẼĨÕŨỸãẽĩõũỹ',
+        'dot': 'ẠẸỊỌỤỴạẹịọụỵ',
+    }
+    symbols_dict = {}
+    for key, chars in accents.items():
+        for char in chars:
+            # Assuming all use case number 3
+            symbols_dict[char] = SquareSymbol(char, color_patterns[key], 3)
+    return symbols_dict
+
+
+symbols_dict = populate_vietnamese_symbols()
+
+# Now symbols_dict contains a SquareSymbol for every Vietnamese accented character
+
+
 # Example usage for a sentence
 if __name__ == '__main__':
     sentence = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
