@@ -88,11 +88,11 @@ def generate_alphabet_square(ax, square_symbol_obj, offset_x=0, offset_y=0):
 
     # Apply colors
     num_colors = len(square_symbol_obj.get_color_lst())
-    for i, polygon_lst in enumerate(cases[square_symbol_obj.get_case() - 1]):
+    for i, polygon in enumerate(cases[square_symbol_obj.get_case() - 1]):
         color = square_symbol_obj.get_color_lst()[i % num_colors]
-        polygon_lst = polygon_lst + np.array([offset_x,  -offset_y])
+        polygon = polygon + np.array([offset_x,  -offset_y])
         # Create a patch object for each polygon, specifying edges and linewidth
-        ax.add_patch(Patches.Polygon(polygon_lst, fill=True,
+        ax.add_patch(Patches.Polygon(polygon, fill=True,
                      edgecolor='black', facecolor=color, linewidth=2))
 
     # Calculate the center of the square for placing the text
@@ -155,7 +155,7 @@ color_dict = {
     'magenta': '#FF00FF',
     'cyan': '#00FFFF',
     'white': '#FFFFFF',
-    'grey': '#808080',
+    'grey': '#404040',
     'black': '#000000'
 }
 
@@ -230,31 +230,18 @@ symbols_dict = {
 
 }
 
-# Color dictionary for easier color management
-color_dict = {
-    'red': '#FF0000',
-    'green': '#00FF00',
-    'blue': '#0000FF',
-    'yellow': '#FFFF00',
-    'magenta': '#FF00FF',
-    'cyan': '#00FFFF',
-    'white': '#FFFFFF',
-    'grey': '#808080',
-    'black': '#000000'
-}
-
 
 # Assume color_dict and SquareSymbol are defined elsewhere
 color_patterns = {
-    'moon': [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red']],
-    'circumflex': [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['red'], color_dict['grey']],
-    'horn': [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['red'], color_dict['grey']],
-    'hard_d': [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red']],
-    'acute': [color_dict['red'], color_dict['white'], color_dict['white'], color_dict['red'], color_dict['grey']],
-    'grave': [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['red']],
-    'hook': [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['red'], color_dict['grey']],
-    'tilde': [color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['white']],
-    'dot': [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red']],
+    'moon': [color_dict['grey'], color_dict['red'], color_dict['grey'], color_dict['red'], color_dict['white']],
+    'circumflex': [color_dict['red'], color_dict['white'], color_dict['red'], color_dict['white'], color_dict['grey']],
+    'horn': [color_dict['white'], color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red']],
+    'hard_d': [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['red'], color_dict['white']],
+    'acute': [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['white'], color_dict['grey']],
+    'grave': [color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['grey'], color_dict['red']],
+    'hook': [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['white'], color_dict['red']],
+    'tilde': [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['white']],
+    'dot': [color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['red'], color_dict['grey']],
 }
 
 # Populate symbols_dict with all Vietnamese characters for each accent type
@@ -266,7 +253,6 @@ accents_dict = {
     'circumflex': (
         'ÂâÊêÔô'  # Circumflex
     ),
-
     'horn': (
         'ƠơƯư'  # Horn
     ),
@@ -333,7 +319,7 @@ def get_accent_type(character, accents_dict):
 # Example usage for a sentence
 if __name__ == '__main__':
     sentence = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    sentence2 = ".,?!\'\"-/:;()&@\\[]{}<>#%_*+-ÁÀ"
+    sentence2 = ".,?!\'\"-/:;()&@\\[]{}<>#%_*+-ĂÂƠĐÁÀẢÃẠ"
     # Example with 2 rows and 6 columns
     plot_sentence(sentence, 6, 6)
     plot_sentence(sentence2, 6, 6)
