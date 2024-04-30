@@ -95,6 +95,16 @@ def generate_alphabet_square(ax, square_symbol_obj, offset_x=0, offset_y=0):
         ax.add_patch(Patches.Polygon(polygon_lst, fill=True,
                      edgecolor='black', facecolor=color, linewidth=2))
 
+    # Calculate the center of the square for placing the text
+    # Assuming all your squares are of size 3x3 based on the given cases
+    center_x = offset_x + 1.5  # Halfway across the width of the square
+    center_y = -offset_y + 1.5  # Halfway up the height of the square
+
+    # Add text at the center of the square
+    ax.text(center_x, center_y, square_symbol_obj.symbol_txt,
+            horizontalalignment='center', verticalalignment='center',
+            fontsize=12, color='b', weight='bold')
+
 
 def plot_sentence(sentence, row_num, col_num):
     """
@@ -203,5 +213,7 @@ color_dict = {
 # Example usage for a sentence
 if __name__ == '__main__':
     sentence = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    sentence2 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     # Example with 2 rows and 6 columns
     plot_sentence(sentence, 6, 6)
+    plot_sentence(sentence2, 6, 6)
