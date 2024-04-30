@@ -4,25 +4,24 @@ import numpy as np
 
 
 class SquareSymbol:
-    def __init__(self, symbol_txt, color_lst, case_number):
+    def __init__(self, symbol_txt, color_lst, case):
         self.symbol_txt = symbol_txt
         self.color_lst = color_lst
-        self.case_number = case_number  # This is the new attribute for case number
+        self.case = case  # This is the new attribute for case number
 
     def get_color_lst(self):
         return self.color_lst
 
-    def get_case_number(self):
-        return self.case_number
+    def get_case(self):
+        return self.case
 
 
-def generate_alphabet_square(square_symbol_obj, case=1):
+def generate_alphabet_square(ax, square_symbol_obj):
     """
     Generate an image of a square with polygons defined explicitly without vertex markers.
     :param symbol: Character or symbol to label the square with.
     :param colors: List of colors for the edges of the polygons.
     """
-    fig, ax = plt.subplots()
 
     # Define polygons with explicit vertices
     case_1 = [
@@ -61,7 +60,7 @@ def generate_alphabet_square(square_symbol_obj, case=1):
 
     # Apply colors cyclically based on available colors in the input
     num_colors = len(square_symbol_obj.get_color_lst())
-    for i, polygon in enumerate(cases[case - 1]):
+    for i, polygon in enumerate(cases[square_symbol_obj.get_case() - 1]):
         color = square_symbol_obj.get_color_lst()[i % num_colors]
         # Create a patch object for each polygon, specifying edges and linewidth
         ax.add_patch(Patches.Polygon(polygon, fill=True,
@@ -77,7 +76,7 @@ def generate_alphabet_square(square_symbol_obj, case=1):
     ax.set_xlim(0, 3)
     ax.set_ylim(0, 3)
     plt.title(
-        f'Symbol: {square_symbol_obj.symbol_txt}, Case: {square_symbol_obj.get_case_number()}')
+        f'Symbol: {square_symbol_obj.symbol_txt}, Case: {square_symbol_obj.get_case()}')
 
     # Show plot
     plt.show()
@@ -98,14 +97,16 @@ color_dict = {
 
 # Example usage with a list of colors
 # only use red, grey and white colors
-symbols_colors = {
+symbols_dict = {
     # 'A': [color_dict['red'], color_dict['green'], color_dict['blue'], color_dict['yellow'], color_dict['grey']],
     'A': SquareSymbol('A', [color_dict['red'], color_dict['white'], color_dict['white'], color_dict['red'], color_dict['grey']], 1),
     'B': SquareSymbol('B', [color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['grey']], 1),
     'C': SquareSymbol('C', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['white']], 1),
 
 }
+if __name__ == '__main__':
+    fig, ax = plt.subplots()
 
-# Generate squares for each symbol
-for symbol, square_symbol_obj in symbols_colors.items():
-    generate_alphabet_square(square_symbol_obj)
+    # Generate squares for each symbol
+    for symbol, square_symbol_obj in symbols_dict.items():
+        generate_alphabet_square(ax, square_symbol_obj)
