@@ -17,33 +17,6 @@ class SquareSymbol:
         return self.case
 
 
-# def generate_alphabet_square(ax, square_symbol_obj):
-#     """
-#     Generate a square in a given axes for a single symbol.
-#     :param ax: The axes to draw the symbol in.
-#     :param square_symbol_obj: SquareSymbol object containing symbol text, colors, and case number.
-#     """
-#     # Define a single case as an example
-#     case = [
-#         np.array([[0, 0], [0, 1], [0.3, 1], [0.3, 0.3]]),
-#         np.array([[0.3, 0.3], [0.3, 1], [1, 1]]),
-#         np.array([[0, 0], [0.3, 0], [0.3, 0.3]]),
-#         np.array([[0.3, 0], [0.3, 0.3], [0.7, 0.7], [0.7, 0]]),
-#         np.array([[0.7, 0], [0.7, 0.7], [1, 1], [1, 0]])
-#     ]
-
-#     colors = square_symbol_obj.get_color_lst()
-#     for polygon, color in zip(case, colors):
-#         ax.add_patch(Patches.Polygon(polygon, fill=True,
-#                      edgecolor='black', facecolor=color, linewidth=1))
-
-#     ax.set_aspect('equal')
-#     ax.axis('off')
-#     ax.set_xlim(0, 1)
-#     ax.set_ylim(0, 1)
-#     ax.set_title(f'{square_symbol_obj.symbol_txt}')
-
-
 def generate_alphabet_square(ax, square_symbol_obj, offset_x=0, offset_y=0):
     """
     Generate an image of a square with polygons defined explicitly without vertex markers.
@@ -117,22 +90,26 @@ def plot_sentence(sentence, row_num, col_num):
     fig, ax = plt.subplots(figsize=(col_num * 3, row_num * 3)
                            )  # Scale figure size based on the number of columns and rows
 
-    # Loop through symbols and plot them with offset
+    # PREPROCESSING
+    processed_lst = []
     for idx, symbol in enumerate(sentence.upper()):
-        accent = get_accent_type(sentence, accents_dict)
-        if symbol in symbols_dict:
-            # Calculate offset based on index
-            # Horizontal offset (left to right)
-            offset_col = (idx % col_num) * 3
-            # Vertical offset (top to bottom)
-            offset_row = (idx // col_num) * 3
-            # Generate square with offset
-            if accent:
-                generate_alphabet_square(
-                    ax, symbols_dict[accent], offset_x=offset_col, offset_y=offset_row)
-            else:
-                generate_alphabet_square(
-                    ax, symbols_dict[symbol], offset_x=offset_col, offset_y=offset_row)
+        if symbol.isspace():  # Skip spaces
+            continue
+         # Default to just the character itself if not decomposed
+        components = decomposition_dict.get(
+            symbol, (symbol,))
+        for component in components:
+            processed_lst.append(component)
+
+    for idx, char in enumerate(processed_lst):
+        # Calculate offset based on index
+        # Horizontal offset (left to right)
+        offset_x = (idx % col_num) * 3
+        # Vertical offset (top to bottom)
+        offset_y = (idx // col_num) * 3
+        # Generate square with offset
+        generate_alphabet_square(
+            ax, symbols_dict[char], offset_x, offset_y)
 
     # Set the x-axis limits to accommodate all columns
     ax.set_xlim(0, col_num * 3)
@@ -227,99 +204,123 @@ symbols_dict = {
     '+': SquareSymbol('+', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['grey'], color_dict['red']], 4),
     '=': SquareSymbol('=', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['grey'], color_dict['white']], 4),
 
-
+    'moon': SquareSymbol('moon', [color_dict['grey'], color_dict['red'], color_dict['grey'], color_dict['red'], color_dict['white']], 3),
+    'circumflex': SquareSymbol('circumflex', [color_dict['red'], color_dict['white'], color_dict['red'], color_dict['white'], color_dict['grey']], 3),
+    'horn': SquareSymbol('horn', [color_dict['white'], color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red']], 3),
+    'hard_d': SquareSymbol('hard_d', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['red'], color_dict['white']], 3),
+    'acute': SquareSymbol('acute', [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['white'], color_dict['grey']], 3),
+    'grave': SquareSymbol('grave', [color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['grey'], color_dict['red']], 3),
+    'hook': SquareSymbol('hook', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['white'], color_dict['red']], 3),
+    'tilde': SquareSymbol('tilde', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['white']], 3),
+    'dot': SquareSymbol('dot', [color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['red'], color_dict['grey']], 3),
 }
 
 
-# Assume color_dict and SquareSymbol are defined elsewhere
-color_patterns = {
-    'moon': [color_dict['grey'], color_dict['red'], color_dict['grey'], color_dict['red'], color_dict['white']],
-    'circumflex': [color_dict['red'], color_dict['white'], color_dict['red'], color_dict['white'], color_dict['grey']],
-    'horn': [color_dict['white'], color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red']],
-    'hard_d': [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['red'], color_dict['white']],
-    'acute': [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['white'], color_dict['grey']],
-    'grave': [color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['grey'], color_dict['red']],
-    'hook': [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['white'], color_dict['red']],
-    'tilde': [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['white']],
-    'dot': [color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['red'], color_dict['grey']],
+decomposition_dict = {
+    # Vowels with acute accent
+    'Á': ('A', 'acute'), 'á': ('a', 'acute'),
+    'É': ('E', 'acute'), 'é': ('e', 'acute'),
+    'Í': ('I', 'acute'), 'í': ('i', 'acute'),
+    'Ó': ('O', 'acute'), 'ó': ('o', 'acute'),
+    'Ú': ('U', 'acute'), 'ú': ('u', 'acute'),
+    'Ý': ('Y', 'acute'), 'ý': ('y', 'acute'),
+
+    # Vowels with grave accent
+    'À': ('A', 'grave'), 'à': ('a', 'grave'),
+    'È': ('E', 'grave'), 'è': ('e', 'grave'),
+    'Ì': ('I', 'grave'), 'ì': ('i', 'grave'),
+    'Ò': ('O', 'grave'), 'ò': ('o', 'grave'),
+    'Ù': ('U', 'grave'), 'ù': ('u', 'grave'),
+    'Ỳ': ('Y', 'grave'), 'ỳ': ('y', 'grave'),
+
+    # Vowels with hook above
+    'Ả': ('A', 'hook'), 'ả': ('a', 'hook'),
+    'Ẻ': ('E', 'hook'), 'ẻ': ('e', 'hook'),
+    'Ỉ': ('I', 'hook'), 'ỉ': ('i', 'hook'),
+    'Ỏ': ('O', 'hook'), 'ỏ': ('o', 'hook'),
+    'Ủ': ('U', 'hook'), 'ủ': ('u', 'hook'),
+    'Ỷ': ('Y', 'hook'), 'ỷ': ('y', 'hook'),
+
+    # Vowels with tilde
+    'Ã': ('A', 'tilde'), 'ã': ('a', 'tilde'),
+    'Ẽ': ('E', 'tilde'), 'ẽ': ('e', 'tilde'),
+    'Ĩ': ('I', 'tilde'), 'ĩ': ('i', 'tilde'),
+    'Õ': ('O', 'tilde'), 'õ': ('o', 'tilde'),
+    'Ũ': ('U', 'tilde'), 'ũ': ('u', 'tilde'),
+    'Ỹ': ('Y', 'tilde'), 'ỹ': ('y', 'tilde'),
+
+    # Vowels with dot below
+    'Ạ': ('A', 'dot'), 'ạ': ('a', 'dot'),
+    'Ẹ': ('E', 'dot'), 'ẹ': ('e', 'dot'),
+    'Ị': ('I', 'dot'), 'ị': ('i', 'dot'),
+    'Ọ': ('O', 'dot'), 'ọ': ('o', 'dot'),
+    'Ụ': ('U', 'dot'), 'ụ': ('u', 'dot'),
+    'Ỵ': ('Y', 'dot'), 'ỵ': ('y', 'dot'),
+
+    # Circumflex
+    'Â': ('A', 'circumflex'), 'â': ('a', 'circumflex'),
+    'Ê': ('E', 'circumflex'), 'ê': ('e', 'circumflex'),
+    'Ô': ('O', 'circumflex'), 'ô': ('o', 'circumflex'),
+
+    # Horn
+    'Ơ': ('O', 'horn'), 'ơ': ('o', 'horn'),
+    'Ư': ('U', 'horn'), 'ư': ('u', 'horn'),
+
+    # Breve
+    'Ă': ('A', 'moon'), 'ă': ('a', 'moon'),
+
+    # Special case for D with stroke
+    'Đ': ('D', 'hard_d'), 'đ': ('d', 'hard_d'),
+
+    # Combinations with circumflex and acute, grave, hook, tilde, dot
+    'Ấ': ('A', 'circumflex', 'acute'), 'ấ': ('a', 'circumflex', 'acute'),
+    'Ầ': ('A', 'circumflex', 'grave'), 'ầ': ('a', 'circumflex', 'grave'),
+    'Ẩ': ('A', 'circumflex', 'hook'), 'ẩ': ('a', 'circumflex', 'hook'),
+    'Ẫ': ('A', 'circumflex', 'tilde'), 'ẫ': ('a', 'circumflex', 'tilde'),
+    'Ậ': ('A', 'circumflex', 'dot'), 'ậ': ('a', 'circumflex', 'dot'),
+
+    # Combinations with horn and acute, grave, hook, tilde, dot
+    'Ớ': ('O', 'horn', 'acute'), 'ớ': ('o', 'horn', 'acute'),
+    'Ờ': ('O', 'horn', 'grave'), 'ờ': ('o', 'horn', 'grave'),
+    'Ở': ('O', 'horn', 'hook'), 'ở': ('o', 'horn', 'hook'),
+    'Ỡ': ('O', 'horn', 'tilde'), 'ỡ': ('o', 'horn', 'tilde'),
+    'Ợ': ('O', 'horn', 'dot'), 'ợ': ('o', 'horn', 'dot'),
+    'Ứ': ('U', 'horn', 'acute'), 'ứ': ('u', 'horn', 'acute'),
+    'Ừ': ('U', 'horn', 'grave'), 'ừ': ('u', 'horn', 'grave'),
+    'Ử': ('U', 'horn', 'hook'), 'ử': ('u', 'horn', 'hook'),
+    'Ữ': ('U', 'horn', 'tilde'), 'ữ': ('u', 'horn', 'tilde'),
+    'Ự': ('U', 'horn', 'dot'), 'ự': ('u', 'horn', 'dot'),
+
+    # Combinations with moon and acute, grave, hook, tilde, dot
+    'Ắ': ('A', 'moon', 'acute'), 'ắ': ('a', 'moon', 'acute'),
+    'Ằ': ('A', 'moon', 'grave'), 'ằ': ('a', 'moon', 'grave'),
+    'Ẳ': ('A', 'moon', 'hook'), 'ẳ': ('a', 'moon', 'hook'),
+    'Ẵ': ('A', 'moon', 'tilde'), 'ẵ': ('a', 'moon', 'tilde'),
+    'Ặ': ('A', 'moon', 'dot'), 'ặ': ('a', 'moon', 'dot'),
+
+    # Additional entries can be added for any specific use-cases or missing characters:
+    'Ế': ('E', 'circumflex', 'acute'), 'ế': ('e', 'circumflex', 'acute'),
+    'Ề': ('E', 'circumflex', 'grave'), 'ề': ('e', 'circumflex', 'grave'),
+    'Ể': ('E', 'circumflex', 'hook'), 'ể': ('e', 'circumflex', 'hook'),
+    'Ễ': ('E', 'circumflex', 'tilde'), 'ễ': ('e', 'circumflex', 'tilde'),
+    'Ệ': ('E', 'circumflex', 'dot'), 'ệ': ('e', 'circumflex', 'dot'),
+
+    'Ố': ('O', 'circumflex', 'acute'), 'ố': ('o', 'circumflex', 'acute'),
+    'Ồ': ('O', 'circumflex', 'grave'), 'ồ': ('o', 'circumflex', 'grave'),
+    'Ổ': ('O', 'circumflex', 'hook'), 'ổ': ('o', 'circumflex', 'hook'),
+    'Ỗ': ('O', 'circumflex', 'tilde'), 'ỗ': ('o', 'circumflex', 'tilde'),
+    'Ộ': ('O', 'circumflex', 'dot'), 'ộ': ('o', 'circumflex', 'dot'),
+
+    # Additional diacritics or modified letters could be defined similarly,
+    # ensuring all required combinations are covered.
 }
-
-# Populate symbols_dict with all Vietnamese characters for each accent type
-base_chars = 'AEIOUYaeiouy'
-accents_dict = {
-    'moon': (
-        'Ăă'  # Lune
-    ),
-    'circumflex': (
-        'ÂâÊêÔô'  # Circumflex
-    ),
-    'horn': (
-        'ƠơƯư'  # Horn
-    ),
-    'hard_d': (
-        'Đđ'  # Hard d
-    ),
-    'acute': (
-        'ÁáẮắẤấÉéẾếÍíÓóỚớỐốÚúỨứÝý'  # Acute accent
-        'ỚớỨứ'  # Acute with horn
-    ),
-    'grave': (
-        'ÀàẰằẦầÈèỀềÌìÒòỜờỒồÙùỪừỲỳ'  # Grave accent
-        'ỜờỪừ'  # Grave with horn
-    ),
-    'hook': (
-        'ẢảẲẳẨẩẺẻỂểỈỉỎỏỞởỔổỦủỬửỶỷ'  # Hook above
-        'ỞởỬử'  # Hook with horn
-    ),
-    'tilde': (
-        'ÃãẴẵẪẫẼẽỄễĨĩÕõỠỡỖỗŨũỮữỸỹ'  # Tilde
-        'ỠỡỮữ'  # Tilde with horn
-    ),
-    'dot': (
-        'ẠạẶặẬậẸẹỆệỊịỌọỢợỤụỰựỴỵ'  # Dot below
-        'ỢợỰự'  # Dot with horn
-    ),
-}
-
-# # Expand accents_dict to include circumflex
-# accents_dict = {
-#     'acute': 'ÁáẮắẤấÉéẾếÍíÓóỚớỐốÚúỨứÝýỚớỨứ',
-#     'grave': 'ÀàẰằẦầÈèỀềÌìÒòỜờỒồÙùỪừỲỳỜờỪừ',
-#     'hook': 'ẢảẲẳẨẩẺẻỂểỈỉỎỏỞởỔổỦủỬửỶỷỞởỬử',
-#     'tilde': 'ÃãẴẵẪẫẼẽỄễĨĩÕõỠỡỖỗŨũỮữỸỹỠỡỮữ',
-#     'dot': 'ẠạẶặẬậẸẹỆệỊịỌọỢợỤụỰựỴỵỢợỰự',
-#     'horn': 'ƠơƯư',
-#     'circumflex': 'ÂâÊêÔô',  # Adding circumflex accent characters
-# }
-
-for key, chars in accents_dict.items():
-    for char in chars:
-        # Assuming all use case number 3
-        symbols_dict[char] = SquareSymbol(char, color_patterns[key], 3)
-# Now symbols_dict contains a SquareSymbol for every Vietnamese accented character
-
-
-def get_accent_type(character, accents_dict):
-    """
-    Returns the type of accent for a given Vietnamese character.
-
-    Args:
-    character (str): The character to check.
-    accents_dict (dict): A dictionary with accent types as keys and string of characters as values.
-
-    Returns:
-    str: The type of accent or None if the character has no accent or is not found.
-    """
-    for accent_type, chars in accents_dict.items():
-        if character in chars:
-            return accent_type
-    return None  # Return None if the character is not found in any of the accent lists
-
 
 # Example usage for a sentence
 if __name__ == '__main__':
     sentence = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     sentence2 = ".,?!\'\"-/:;()&@\\[]{}<>#%_*+-ĂÂƠĐÁÀẢÃẠ"
+    sentence3 = "ARCHITECTHOÀNGCÔNGHUÂN"
     # Example with 2 rows and 6 columns
     plot_sentence(sentence, 6, 6)
     plot_sentence(sentence2, 6, 6)
+    plot_sentence(sentence3, 3, 8)
