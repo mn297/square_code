@@ -15,6 +15,8 @@ from PyQt5.QtWidgets import (
     QApplication,
     QLineEdit,
     QCheckBox,
+    QTextEdit,
+    QFileDialog,
 )
 from PyQt5.QtGui import QKeyEvent, QPainter, QPen, QColor
 
@@ -107,13 +109,18 @@ class SquareCodeGUI(QWidget):
         vbox.addWidget(self.toolbar)
 
         # text box for sentence
-        self.sentence_text = QLineEdit()
+        self.sentence_text = QTextEdit()
         vbox.addWidget(self.sentence_text)
 
         # button for generating code
         self.generate_btn = QPushButton("Generate code")
         self.generate_btn.clicked.connect(self.generate_code)
         vbox.addWidget(self.generate_btn)
+
+        # button for exporting graphic
+        self.export_btn = QPushButton("Export Vector Graphic")
+        self.export_btn.clicked.connect(self.export_graphic)
+        vbox.addWidget(self.export_btn)
 
         # Checkbox for showing text
         self.text_checkbox = QCheckBox("Show Text")
@@ -132,7 +139,7 @@ class SquareCodeGUI(QWidget):
         self.canvas.axes.clear()
         row_num = self.sliders_dict["row"].value()
         col_num = self.sliders_dict["col"].value()
-        sentence = self.sentence_text.text()
+        sentence = self.sentence_text.toPlainText()
         plot_sentence(self.canvas.axes, sentence, row_num, col_num,
                       symbol_text=self.text_checkbox.isChecked())
         self.canvas.draw()
@@ -152,6 +159,20 @@ class SquareCodeGUI(QWidget):
         self.canvas.axes.set_ylim(0, max_dim)
         self.canvas.axes.set_aspect('equal')
         self.canvas.draw()
+
+    def export_graphic(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getSaveFileName(
+            self, "QFileDialog.getSaveFileName()", "", "All Files (*);;Vector Files (*.svg);;PDF Files (*.pdf)", options=options)
+        if fileName:
+            if '.pdf' in fileName:
+                self.canvas.fig.savefig(fileName, format='pdf')
+            elif '.svg' in fileName:
+                self.canvas.fig.savefig(fileName, format='svg')
+            else:
+                fileName += '.svg'  # Default to SVG if no format specified
+                self.canvas.fig.savefig(fileName, format='svg')
 
 
 class SquareSymbol:
@@ -249,7 +270,7 @@ def plot_sentence(ax, sentence, row_num=6, col_num=6, symbol_text=False):
             symbol, (symbol,))
         for component in components:
             processed_lst.append(component)
-    print("Length of processed sentence is "+ str(len(processed_lst)))
+    print("Length of processed sentence is " + str(len(processed_lst)))
     for idx, char in enumerate(processed_lst):
         # Calculate offset based on index
         # Horizontal offset (left to right)
