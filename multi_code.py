@@ -1,7 +1,157 @@
+import sys
 import matplotlib.pyplot as plt
 import matplotlib.patches as Patches
 import numpy as np
 import math
+
+from PyQt5.QtCore import Qt, QThread, QTimer, QEventLoop, pyqtSignal
+from PyQt5.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QSlider,
+    QLabel,
+    QPushButton,
+    QApplication,
+    QLineEdit,
+    QCheckBox,
+)
+from PyQt5.QtGui import QKeyEvent, QPainter, QPen, QColor
+
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas, NavigationToolbar2QT
+from matplotlib.figure import Figure
+
+
+class MplCanvas(FigureCanvas):
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = self.fig.add_subplot(111)
+        super(MplCanvas, self).__init__(self.fig)
+
+
+class SquareCodeGUI(QWidget):
+    def __init__(self):
+        self.labels = []
+        self.downButtons = []
+        self.upButtons = []
+        self.sliders_dict = {
+            "row": None,
+            "col": None
+        }
+        self.labels_dict = {
+            "row": None,
+            "col": None
+        }
+        # Initialize the parent class
+        super(SquareCodeGUI, self).__init__()
+        # super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        main_layout = QHBoxLayout()
+
+        vbox = QVBoxLayout()
+        vbox.addWidget(QLabel("size: rows x columns"))
+
+        # VBOX FOR ROW AND COL SLIDERS
+        for key in self.sliders_dict.keys():
+            hbox = QHBoxLayout()
+
+            down_btn = QPushButton("-")
+            down_btn.clicked.connect(
+                lambda _, k=key: self.adjust_slider(-1, k))
+            up_btn = QPushButton("+")
+            up_btn.clicked.connect(lambda _, k=key: self.adjust_slider(1, k))
+
+            slider = QSlider(Qt.Horizontal)
+            slider.setMinimum(1)
+            slider.setMaximum(30)
+            slider.setValue(6)
+            slider.valueChanged.connect(
+                lambda value, k=key: self.update_label(k, value))
+
+            self.sliders_dict[key] = slider
+
+            label = QLabel(f"{key}: {slider.value()}")
+            self.labels_dict[key] = label  # Store reference to label
+
+            hbox.addWidget(down_btn)
+            hbox.addWidget(slider)
+            hbox.addWidget(up_btn)
+
+            vbox.addWidget(label)
+            vbox.addLayout(hbox)
+
+        main_layout.addLayout(vbox)
+
+        # Setup the Matplotlib canvas
+        self.canvas = MplCanvas(self, width=5, height=4, dpi=100)
+        main_layout.addWidget(self.canvas)
+
+        # Set the x-axis limits to accommodate all columns
+        self.canvas.axes.set_xlim(0, self.sliders_dict["col"].value() * 3)
+        # Set the y-axis limits to accommodate all rows
+        self.canvas.axes.set_ylim(
+            -self.sliders_dict["row"].value() * 3, self.sliders_dict["row"].value() * 3)
+        # Maintain aspect ratio
+        self.canvas.axes.set_aspect('equal')
+        # Hide axis
+        self.canvas.axes.axis('off')
+
+        # HELPERS
+        vbox = QVBoxLayout()
+
+        # Add Matplotlib navigation toolbar for zoom and pan functionality
+        self.toolbar = NavigationToolbar2QT(self.canvas, self)
+        vbox.addWidget(self.toolbar)
+
+        # text box for sentence
+        self.sentence_text = QLineEdit()
+        vbox.addWidget(self.sentence_text)
+
+        # button for generating code
+        self.generate_btn = QPushButton("Generate code")
+        self.generate_btn.clicked.connect(self.generate_code)
+        vbox.addWidget(self.generate_btn)
+
+        # Checkbox for showing text
+        self.text_checkbox = QCheckBox("Show Text")
+        self.text_checkbox.setChecked(True)  # Default to showing text
+        vbox.addWidget(self.text_checkbox)
+
+        main_layout.addLayout(vbox)
+
+        self.setLayout(main_layout)
+
+    def update_label(self, key, value):
+        self.labels_dict[key].setText(f"{key}: {value}")
+        # self.update_plot_limits()
+
+    def generate_code(self):
+        self.canvas.axes.clear()
+        row_num = self.sliders_dict["row"].value()
+        col_num = self.sliders_dict["col"].value()
+        sentence = self.sentence_text.text()
+        plot_sentence(self.canvas.axes, sentence, row_num, col_num,
+                      symbol_text=self.text_checkbox.isChecked())
+        self.canvas.draw()
+
+    def adjust_slider(self, value, slider_name):
+        current_value = self.sliders_dict[slider_name].value()
+        # Clamp the value between 1 and 20
+        new_value = max(1, min(30, current_value + value))
+        self.sliders_dict[slider_name].setValue(new_value)
+
+    # Questionable function
+    def update_plot_limits(self):
+        # Optionally, update plot limits when slider values change
+        max_dim = max(self.sliders_dict["row"].value(
+        ), self.sliders_dict["col"].value()) * 3
+        self.canvas.axes.set_xlim(0, max_dim)
+        self.canvas.axes.set_ylim(0, max_dim)
+        self.canvas.axes.set_aspect('equal')
+        self.canvas.draw()
 
 
 class SquareSymbol:
@@ -17,7 +167,7 @@ class SquareSymbol:
         return self.case
 
 
-def generate_alphabet_square(ax, square_symbol_obj, offset_x=0, offset_y=0):
+def generate_alphabet_square(ax, square_symbol_obj, offset_x=0, offset_y=0, symbol_text=False):
     """
     Generate an image of a square with polygons defined explicitly without vertex markers.
     :param symbol: Character or symbol to label the square with.
@@ -74,12 +224,13 @@ def generate_alphabet_square(ax, square_symbol_obj, offset_x=0, offset_y=0):
     center_y = -offset_y + 1.5  # Halfway up the height of the square
 
     # Add text at the center of the square
-    ax.text(center_x, center_y, square_symbol_obj.symbol_txt,
-            horizontalalignment='center', verticalalignment='center',
-            fontsize=12, color='b', weight='bold')
+    if symbol_text:
+        ax.text(center_x, center_y, square_symbol_obj.symbol_txt,
+                horizontalalignment='center', verticalalignment='center',
+                fontsize=12, color='b', weight='bold')
 
 
-def plot_sentence(sentence, row_num, col_num):
+def plot_sentence(ax, sentence, row_num=6, col_num=6, symbol_text=False):
     """
     Plot a sentence with each character offset by 3 times its index in either columns or rows.
     :param sentence: The sentence to render.
@@ -87,8 +238,6 @@ def plot_sentence(sentence, row_num, col_num):
     :param row_num: Expected number of rows in the grid.
     :param col_num: Expected number of columns in the grid.
     """
-    fig, ax = plt.subplots(figsize=(col_num * 3, row_num * 3)
-                           )  # Scale figure size based on the number of columns and rows
 
     # PREPROCESSING
     processed_lst = []
@@ -100,7 +249,7 @@ def plot_sentence(sentence, row_num, col_num):
             symbol, (symbol,))
         for component in components:
             processed_lst.append(component)
-
+    print("Length of processed sentence is "+ str(len(processed_lst)))
     for idx, char in enumerate(processed_lst):
         # Calculate offset based on index
         # Horizontal offset (left to right)
@@ -109,7 +258,7 @@ def plot_sentence(sentence, row_num, col_num):
         offset_y = (idx // col_num) * 3
         # Generate square with offset
         generate_alphabet_square(
-            ax, symbols_dict[char], offset_x, offset_y)
+            ax, symbols_dict[char], offset_x, offset_y, symbol_text)
 
     # Set the x-axis limits to accommodate all columns
     ax.set_xlim(0, col_num * 3)
@@ -315,12 +464,32 @@ decomposition_dict = {
     # ensuring all required combinations are covered.
 }
 
+
+def main():
+    app = QApplication(sys.argv)
+    gui = SquareCodeGUI()
+    gui.show()
+    sys.exit(app.exec_())
+
+
+use_gui = True
+
 # Example usage for a sentence
 if __name__ == '__main__':
-    sentence = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    sentence2 = ".,?!\'\"-/:;()&@\\[]{}<>#%_*+-ĂÂƠĐÁÀẢÃẠ"
-    sentence3 = "ARCHITECTHOÀNGCÔNGHUÂN"
-    # Example with 2 rows and 6 columns
-    plot_sentence(sentence, 6, 6)
-    plot_sentence(sentence2, 6, 6)
-    plot_sentence(sentence3, 3, 8)
+    if use_gui:
+        main()
+    else:
+        sentence = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        sentence2 = ".,?!\'\"-/:;()&@\\[]{}<>#%_*+-ĂÂƠĐÁÀẢÃẠ"
+        sentence3 = "ARCHITECTHOÀNGCÔNGHUÂN"
+        sentence4 = "Tâm hồn là nội thất căn nhà - con người"
+        # Example with 2 rows and 6 columns
+        # plot_sentence(sentence, 6, 6)
+        # plot_sentence(sentence2, 6, 6)
+        # plot_sentence(sentence3, 3, 8)
+        col_num = 7
+        row_num = 7
+        fig, ax = plt.subplots(figsize=(col_num * 3, row_num * 3)
+                               )  # Scale figure size based on the number of columns and rows
+
+        plot_sentence(ax, sentence4, row_num, col_num, symbol_text=0)
