@@ -85,6 +85,18 @@ class SquareCodeGUI(QWidget):
             vbox.addWidget(label)
             vbox.addLayout(hbox)
 
+        self.line_width_slider = QSlider(Qt.Horizontal)
+        self.line_width_slider.setMinimum(0.1)
+        self.line_width_slider.setMaximum(2)
+        self.line_width_slider.setValue(1)
+
+        line_width_label = QLabel("Line Width: 1")
+        self.line_width_slider.valueChanged.connect(
+            lambda value: line_width_label.setText(f"Line Width: {value}"))
+
+        vbox.addWidget(line_width_label)
+        vbox.addWidget(self.line_width_slider)
+
         main_layout.addLayout(vbox)
 
         # Setup the Matplotlib canvas
@@ -141,7 +153,7 @@ class SquareCodeGUI(QWidget):
         col_num = self.sliders_dict["col"].value()
         sentence = self.sentence_text.toPlainText()
         plot_sentence(self.canvas.axes, sentence, row_num, col_num,
-                      symbol_text=self.text_checkbox.isChecked())
+                      symbol_text=self.text_checkbox.isChecked(), line_width=self.line_width_slider.value())
         self.canvas.draw()
 
     def adjust_slider(self, value, slider_name):
@@ -175,20 +187,7 @@ class SquareCodeGUI(QWidget):
                 self.canvas.fig.savefig(fileName, format='svg')
 
 
-class SquareSymbol:
-    def __init__(self, symbol_txt, color_lst, case):
-        self.symbol_txt = symbol_txt
-        self.color_lst = color_lst
-        self.case = case  # This is the new attribute for case number
-
-    def get_color_lst(self):
-        return self.color_lst
-
-    def get_case(self):
-        return self.case
-
-
-def generate_alphabet_square(ax, square_symbol_obj, offset_x=0, offset_y=0, symbol_text=False):
+def generate_alphabet_square(ax, square_symbol_obj, offset_x=0, offset_y=0, symbol_text=False, line_width=1):
     """
     Generate an image of a square with polygons defined explicitly without vertex markers.
     :param symbol: Character or symbol to label the square with.
@@ -238,7 +237,7 @@ def generate_alphabet_square(ax, square_symbol_obj, offset_x=0, offset_y=0, symb
 
         # Create a patch object for each polygon, specifying edges and linewidth
         ax.add_patch(Patches.Polygon(polygon, fill=True,
-                     edgecolor='black', facecolor=color, linewidth=1))
+                     edgecolor='black', facecolor=color, linewidth=line_width))
 
     # Calculate the center of the square for placing the text
     # Assuming all your squares are of size 3x3 based on the given cases
@@ -252,7 +251,7 @@ def generate_alphabet_square(ax, square_symbol_obj, offset_x=0, offset_y=0, symb
                 fontsize=12, color='b', weight='bold')
 
 
-def plot_sentence(ax, sentence, row_num=6, col_num=6, symbol_text=False):
+def plot_sentence(ax, sentence, row_num=6, col_num=6, symbol_text=False, line_width=1):
     """
     Plot a sentence with each character offset by 3 times its index in either columns or rows.
     :param sentence: The sentence to render.
@@ -292,6 +291,19 @@ def plot_sentence(ax, sentence, row_num=6, col_num=6, symbol_text=False):
     ax.axis('off')
 
     plt.show()
+
+
+class SquareSymbol:
+    def __init__(self, symbol_txt, color_lst, case):
+        self.symbol_txt = symbol_txt
+        self.color_lst = color_lst
+        self.case = case  # This is the new attribute for case number
+
+    def get_color_lst(self):
+        return self.color_lst
+
+    def get_case(self):
+        return self.case
 
 
 # Color dictionary for easier color management
@@ -375,13 +387,20 @@ symbols_dict = {
     '+': SquareSymbol('+', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['grey'], color_dict['red']], 4),
     '=': SquareSymbol('=', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['grey'], color_dict['white']], 4),
 
+    # moon
     '˅': SquareSymbol('˅', [color_dict['grey'], color_dict['red'], color_dict['grey'], color_dict['red'], color_dict['white']], 3),
+    # circumflex
     '^': SquareSymbol('^', [color_dict['red'], color_dict['white'], color_dict['red'], color_dict['white'], color_dict['grey']], 3),
-    'horn': SquareSymbol('horn', [color_dict['white'], color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red']], 3),
+    # horn
+    '◌̛': SquareSymbol('◌̛', [color_dict['white'], color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red']], 3),
+    # d_bar
     'đ': SquareSymbol('đ', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['red'], color_dict['white']], 3),
     'acute': SquareSymbol('acute', [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['white'], color_dict['grey']], 3),
-    'grave': SquareSymbol('grave', [color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['grey'], color_dict['red']], 3),
-    'hook': SquareSymbol('hook', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['white'], color_dict['red']], 3),
+    # grave
+    '`': SquareSymbol('`', [color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['grey'], color_dict['red']], 3),
+    # hook
+    'ʔ': SquareSymbol('ʔ', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['white'], color_dict['red']], 3),
+    # dau nga (tilde)
     '~': SquareSymbol('~', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['white']], 3),
     '•': SquareSymbol('•', [color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['red'], color_dict['grey']], 3),
 }
@@ -396,21 +415,21 @@ decomposition_dict = {
     'Ú': ('U', 'acute'), 'ú': ('u', 'acute'),
     'Ý': ('Y', 'acute'), 'ý': ('y', 'acute'),
 
-    # Vowels with grave accent
-    'À': ('A', 'grave'), 'à': ('a', 'grave'),
-    'È': ('E', 'grave'), 'è': ('e', 'grave'),
-    'Ì': ('I', 'grave'), 'ì': ('i', 'grave'),
-    'Ò': ('O', 'grave'), 'ò': ('o', 'grave'),
-    'Ù': ('U', 'grave'), 'ù': ('u', 'grave'),
-    'Ỳ': ('Y', 'grave'), 'ỳ': ('y', 'grave'),
+    # Vowels with ` accent
+    'À': ('A', '`'), 'à': ('a', '`'),
+    'È': ('E', '`'), 'è': ('e', '`'),
+    'Ì': ('I', '`'), 'ì': ('i', '`'),
+    'Ò': ('O', '`'), 'ò': ('o', '`'),
+    'Ù': ('U', '`'), 'ù': ('u', '`'),
+    'Ỳ': ('Y', '`'), 'ỳ': ('y', '`'),
 
-    # Vowels with hook above
-    'Ả': ('A', 'hook'), 'ả': ('a', 'hook'),
-    'Ẻ': ('E', 'hook'), 'ẻ': ('e', 'hook'),
-    'Ỉ': ('I', 'hook'), 'ỉ': ('i', 'hook'),
-    'Ỏ': ('O', 'hook'), 'ỏ': ('o', 'hook'),
-    'Ủ': ('U', 'hook'), 'ủ': ('u', 'hook'),
-    'Ỷ': ('Y', 'hook'), 'ỷ': ('y', 'hook'),
+    # Vowels with ʔ above
+    'Ả': ('A', 'ʔ'), 'ả': ('a', 'ʔ'),
+    'Ẻ': ('E', 'ʔ'), 'ẻ': ('e', 'ʔ'),
+    'Ỉ': ('I', 'ʔ'), 'ỉ': ('i', 'ʔ'),
+    'Ỏ': ('O', 'ʔ'), 'ỏ': ('o', 'ʔ'),
+    'Ủ': ('U', 'ʔ'), 'ủ': ('u', 'ʔ'),
+    'Ỷ': ('Y', 'ʔ'), 'ỷ': ('y', 'ʔ'),
 
     # Vowels with ~
     'Ã': ('A', '~'), 'ã': ('a', '~'),
@@ -433,9 +452,9 @@ decomposition_dict = {
     'Ê': ('E', '^'), 'ê': ('e', '^'),
     'Ô': ('O', '^'), 'ô': ('o', '^'),
 
-    # Horn
-    'Ơ': ('O', 'horn'), 'ơ': ('o', 'horn'),
-    'Ư': ('U', 'horn'), 'ư': ('u', 'horn'),
+    # ◌̛
+    'Ơ': ('O', '◌̛'), 'ơ': ('o', '◌̛'),
+    'Ư': ('U', '◌̛'), 'ư': ('u', '◌̛'),
 
     # Breve
     'Ă': ('A', '˅'), 'ă': ('a', '˅'),
@@ -443,47 +462,49 @@ decomposition_dict = {
     # Special case for D with stroke
     'Đ': ('D', 'đ'), 'đ': ('d', 'đ'),
 
-    # Combinations with ^ and acute, grave, hook, ~, •
+    # Combinations with ^ and acute, `, ʔ, ~, •
     'Ấ': ('A', '^', 'acute'), 'ấ': ('a', '^', 'acute'),
-    'Ầ': ('A', '^', 'grave'), 'ầ': ('a', '^', 'grave'),
-    'Ẩ': ('A', '^', 'hook'), 'ẩ': ('a', '^', 'hook'),
+    'Ầ': ('A', '^', '`'), 'ầ': ('a', '^', '`'),
+    'Ẩ': ('A', '^', 'ʔ'), 'ẩ': ('a', '^', 'ʔ'),
     'Ẫ': ('A', '^', '~'), 'ẫ': ('a', '^', '~'),
     'Ậ': ('A', '^', '•'), 'ậ': ('a', '^', '•'),
 
-    # Combinations with horn and acute, grave, hook, ~, •
-    'Ớ': ('O', 'horn', 'acute'), 'ớ': ('o', 'horn', 'acute'),
-    'Ờ': ('O', 'horn', 'grave'), 'ờ': ('o', 'horn', 'grave'),
-    'Ở': ('O', 'horn', 'hook'), 'ở': ('o', 'horn', 'hook'),
-    'Ỡ': ('O', 'horn', '~'), 'ỡ': ('o', 'horn', '~'),
-    'Ợ': ('O', 'horn', '•'), 'ợ': ('o', 'horn', '•'),
-    'Ứ': ('U', 'horn', 'acute'), 'ứ': ('u', 'horn', 'acute'),
-    'Ừ': ('U', 'horn', 'grave'), 'ừ': ('u', 'horn', 'grave'),
-    'Ử': ('U', 'horn', 'hook'), 'ử': ('u', 'horn', 'hook'),
-    'Ữ': ('U', 'horn', '~'), 'ữ': ('u', 'horn', '~'),
-    'Ự': ('U', 'horn', '•'), 'ự': ('u', 'horn', '•'),
+    # Combinations with ◌̛ and acute, `, ʔ, ~, •
+    'Ớ': ('O', '◌̛', 'acute'), 'ớ': ('o', '◌̛', 'acute'),
+    'Ờ': ('O', '◌̛', '`'), 'ờ': ('o', '◌̛', '`'),
+    'Ở': ('O', '◌̛', 'ʔ'), 'ở': ('o', '◌̛', 'ʔ'),
+    'Ỡ': ('O', '◌̛', '~'), 'ỡ': ('o', '◌̛', '~'),
+    'Ợ': ('O', '◌̛', '•'), 'ợ': ('o', '◌̛', '•'),
+    'Ứ': ('U', '◌̛', 'acute'), 'ứ': ('u', '◌̛', 'acute'),
+    'Ừ': ('U', '◌̛', '`'), 'ừ': ('u', '◌̛', '`'),
+    'Ử': ('U', '◌̛', 'ʔ'), 'ử': ('u', '◌̛', 'ʔ'),
+    'Ữ': ('U', '◌̛', '~'), 'ữ': ('u', '◌̛', '~'),
+    'Ự': ('U', '◌̛', '•'), 'ự': ('u', '◌̛', '•'),
 
-    # Combinations with ˅ and acute, grave, hook, ~, •
+    # Combinations with ˅ and acute, `, ʔ, ~, •
     'Ắ': ('A', '˅', 'acute'), 'ắ': ('a', '˅', 'acute'),
-    'Ằ': ('A', '˅', 'grave'), 'ằ': ('a', '˅', 'grave'),
-    'Ẳ': ('A', '˅', 'hook'), 'ẳ': ('a', '˅', 'hook'),
+    'Ằ': ('A', '˅', '`'), 'ằ': ('a', '˅', '`'),
+    'Ẳ': ('A', '˅', 'ʔ'), 'ẳ': ('a', '˅', 'ʔ'),
     'Ẵ': ('A', '˅', '~'), 'ẵ': ('a', '˅', '~'),
     'Ặ': ('A', '˅', '•'), 'ặ': ('a', '˅', '•'),
 
     # Additional entries can be added for any specific use-cases or missing characters:
     'Ế': ('E', '^', 'acute'), 'ế': ('e', '^', 'acute'),
-    'Ề': ('E', '^', 'grave'), 'ề': ('e', '^', 'grave'),
-    'Ể': ('E', '^', 'hook'), 'ể': ('e', '^', 'hook'),
+    'Ề': ('E', '^', '`'), 'ề': ('e', '^', '`'),
+    'Ể': ('E', '^', 'ʔ'), 'ể': ('e', '^', 'ʔ'),
     'Ễ': ('E', '^', '~'), 'ễ': ('e', '^', '~'),
     'Ệ': ('E', '^', '•'), 'ệ': ('e', '^', '•'),
 
     'Ố': ('O', '^', 'acute'), 'ố': ('o', '^', 'acute'),
-    'Ồ': ('O', '^', 'grave'), 'ồ': ('o', '^', 'grave'),
-    'Ổ': ('O', '^', 'hook'), 'ổ': ('o', '^', 'hook'),
+    'Ồ': ('O', '^', '`'), 'ồ': ('o', '^', '`'),
+    'Ổ': ('O', '^', 'ʔ'), 'ổ': ('o', '^', 'ʔ'),
     'Ỗ': ('O', '^', '~'), 'ỗ': ('o', '^', '~'),
     'Ộ': ('O', '^', '•'), 'ộ': ('o', '^', '•'),
 
     # Additional diacritics or modified letters could be defined similarly,
     # ensuring all required combinations are covered.
+    '$': ('S', 'đ'),
+
 }
 
 
