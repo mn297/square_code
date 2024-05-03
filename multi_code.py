@@ -68,7 +68,7 @@ class SquareCodeGUI(QWidget):
 
             slider = QSlider(Qt.Horizontal)
             slider.setMinimum(1)
-            slider.setMaximum(30)
+            slider.setMaximum(40)
             slider.setValue(6)
             slider.valueChanged.connect(
                 lambda value, k=key: self.update_label(k, value))
@@ -147,7 +147,7 @@ class SquareCodeGUI(QWidget):
     def adjust_slider(self, value, slider_name):
         current_value = self.sliders_dict[slider_name].value()
         # Clamp the value between 1 and 20
-        new_value = max(1, min(30, current_value + value))
+        new_value = max(1, min(40, current_value + value))
         self.sliders_dict[slider_name].setValue(new_value)
 
     # Questionable function
