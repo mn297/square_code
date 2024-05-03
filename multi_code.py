@@ -235,9 +235,10 @@ def generate_alphabet_square(ax, square_symbol_obj, offset_x=0, offset_y=0, symb
     for i, polygon in enumerate(cases[square_symbol_obj.get_case() - 1]):
         color = square_symbol_obj.get_color_lst()[i % num_colors]
         polygon = polygon + np.array([offset_x,  -offset_y])
+
         # Create a patch object for each polygon, specifying edges and linewidth
         ax.add_patch(Patches.Polygon(polygon, fill=True,
-                     edgecolor='black', facecolor=color, linewidth=2))
+                     edgecolor='black', facecolor=color, linewidth=1))
 
     # Calculate the center of the square for placing the text
     # Assuming all your squares are of size 3x3 based on the given cases
@@ -374,15 +375,15 @@ symbols_dict = {
     '+': SquareSymbol('+', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['grey'], color_dict['red']], 4),
     '=': SquareSymbol('=', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['grey'], color_dict['white']], 4),
 
-    'moon': SquareSymbol('moon', [color_dict['grey'], color_dict['red'], color_dict['grey'], color_dict['red'], color_dict['white']], 3),
-    'circumflex': SquareSymbol('circumflex', [color_dict['red'], color_dict['white'], color_dict['red'], color_dict['white'], color_dict['grey']], 3),
+    '˅': SquareSymbol('˅', [color_dict['grey'], color_dict['red'], color_dict['grey'], color_dict['red'], color_dict['white']], 3),
+    '^': SquareSymbol('^', [color_dict['red'], color_dict['white'], color_dict['red'], color_dict['white'], color_dict['grey']], 3),
     'horn': SquareSymbol('horn', [color_dict['white'], color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red']], 3),
-    'hard_d': SquareSymbol('hard_d', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['red'], color_dict['white']], 3),
+    'đ': SquareSymbol('đ', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['red'], color_dict['white']], 3),
     'acute': SquareSymbol('acute', [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['white'], color_dict['grey']], 3),
     'grave': SquareSymbol('grave', [color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['grey'], color_dict['red']], 3),
     'hook': SquareSymbol('hook', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['white'], color_dict['red']], 3),
-    'tilde': SquareSymbol('tilde', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['white']], 3),
-    'dot': SquareSymbol('dot', [color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['red'], color_dict['grey']], 3),
+    '~': SquareSymbol('~', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['white']], 3),
+    '•': SquareSymbol('•', [color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['red'], color_dict['grey']], 3),
 }
 
 
@@ -411,75 +412,75 @@ decomposition_dict = {
     'Ủ': ('U', 'hook'), 'ủ': ('u', 'hook'),
     'Ỷ': ('Y', 'hook'), 'ỷ': ('y', 'hook'),
 
-    # Vowels with tilde
-    'Ã': ('A', 'tilde'), 'ã': ('a', 'tilde'),
-    'Ẽ': ('E', 'tilde'), 'ẽ': ('e', 'tilde'),
-    'Ĩ': ('I', 'tilde'), 'ĩ': ('i', 'tilde'),
-    'Õ': ('O', 'tilde'), 'õ': ('o', 'tilde'),
-    'Ũ': ('U', 'tilde'), 'ũ': ('u', 'tilde'),
-    'Ỹ': ('Y', 'tilde'), 'ỹ': ('y', 'tilde'),
+    # Vowels with ~
+    'Ã': ('A', '~'), 'ã': ('a', '~'),
+    'Ẽ': ('E', '~'), 'ẽ': ('e', '~'),
+    'Ĩ': ('I', '~'), 'ĩ': ('i', '~'),
+    'Õ': ('O', '~'), 'õ': ('o', '~'),
+    'Ũ': ('U', '~'), 'ũ': ('u', '~'),
+    'Ỹ': ('Y', '~'), 'ỹ': ('y', '~'),
 
-    # Vowels with dot below
-    'Ạ': ('A', 'dot'), 'ạ': ('a', 'dot'),
-    'Ẹ': ('E', 'dot'), 'ẹ': ('e', 'dot'),
-    'Ị': ('I', 'dot'), 'ị': ('i', 'dot'),
-    'Ọ': ('O', 'dot'), 'ọ': ('o', 'dot'),
-    'Ụ': ('U', 'dot'), 'ụ': ('u', 'dot'),
-    'Ỵ': ('Y', 'dot'), 'ỵ': ('y', 'dot'),
+    # Vowels with • below
+    'Ạ': ('A', '•'), 'ạ': ('a', '•'),
+    'Ẹ': ('E', '•'), 'ẹ': ('e', '•'),
+    'Ị': ('I', '•'), 'ị': ('i', '•'),
+    'Ọ': ('O', '•'), 'ọ': ('o', '•'),
+    'Ụ': ('U', '•'), 'ụ': ('u', '•'),
+    'Ỵ': ('Y', '•'), 'ỵ': ('y', '•'),
 
-    # Circumflex
-    'Â': ('A', 'circumflex'), 'â': ('a', 'circumflex'),
-    'Ê': ('E', 'circumflex'), 'ê': ('e', 'circumflex'),
-    'Ô': ('O', 'circumflex'), 'ô': ('o', 'circumflex'),
+    # ^
+    'Â': ('A', '^'), 'â': ('a', '^'),
+    'Ê': ('E', '^'), 'ê': ('e', '^'),
+    'Ô': ('O', '^'), 'ô': ('o', '^'),
 
     # Horn
     'Ơ': ('O', 'horn'), 'ơ': ('o', 'horn'),
     'Ư': ('U', 'horn'), 'ư': ('u', 'horn'),
 
     # Breve
-    'Ă': ('A', 'moon'), 'ă': ('a', 'moon'),
+    'Ă': ('A', '˅'), 'ă': ('a', '˅'),
 
     # Special case for D with stroke
-    'Đ': ('D', 'hard_d'), 'đ': ('d', 'hard_d'),
+    'Đ': ('D', 'đ'), 'đ': ('d', 'đ'),
 
-    # Combinations with circumflex and acute, grave, hook, tilde, dot
-    'Ấ': ('A', 'circumflex', 'acute'), 'ấ': ('a', 'circumflex', 'acute'),
-    'Ầ': ('A', 'circumflex', 'grave'), 'ầ': ('a', 'circumflex', 'grave'),
-    'Ẩ': ('A', 'circumflex', 'hook'), 'ẩ': ('a', 'circumflex', 'hook'),
-    'Ẫ': ('A', 'circumflex', 'tilde'), 'ẫ': ('a', 'circumflex', 'tilde'),
-    'Ậ': ('A', 'circumflex', 'dot'), 'ậ': ('a', 'circumflex', 'dot'),
+    # Combinations with ^ and acute, grave, hook, ~, •
+    'Ấ': ('A', '^', 'acute'), 'ấ': ('a', '^', 'acute'),
+    'Ầ': ('A', '^', 'grave'), 'ầ': ('a', '^', 'grave'),
+    'Ẩ': ('A', '^', 'hook'), 'ẩ': ('a', '^', 'hook'),
+    'Ẫ': ('A', '^', '~'), 'ẫ': ('a', '^', '~'),
+    'Ậ': ('A', '^', '•'), 'ậ': ('a', '^', '•'),
 
-    # Combinations with horn and acute, grave, hook, tilde, dot
+    # Combinations with horn and acute, grave, hook, ~, •
     'Ớ': ('O', 'horn', 'acute'), 'ớ': ('o', 'horn', 'acute'),
     'Ờ': ('O', 'horn', 'grave'), 'ờ': ('o', 'horn', 'grave'),
     'Ở': ('O', 'horn', 'hook'), 'ở': ('o', 'horn', 'hook'),
-    'Ỡ': ('O', 'horn', 'tilde'), 'ỡ': ('o', 'horn', 'tilde'),
-    'Ợ': ('O', 'horn', 'dot'), 'ợ': ('o', 'horn', 'dot'),
+    'Ỡ': ('O', 'horn', '~'), 'ỡ': ('o', 'horn', '~'),
+    'Ợ': ('O', 'horn', '•'), 'ợ': ('o', 'horn', '•'),
     'Ứ': ('U', 'horn', 'acute'), 'ứ': ('u', 'horn', 'acute'),
     'Ừ': ('U', 'horn', 'grave'), 'ừ': ('u', 'horn', 'grave'),
     'Ử': ('U', 'horn', 'hook'), 'ử': ('u', 'horn', 'hook'),
-    'Ữ': ('U', 'horn', 'tilde'), 'ữ': ('u', 'horn', 'tilde'),
-    'Ự': ('U', 'horn', 'dot'), 'ự': ('u', 'horn', 'dot'),
+    'Ữ': ('U', 'horn', '~'), 'ữ': ('u', 'horn', '~'),
+    'Ự': ('U', 'horn', '•'), 'ự': ('u', 'horn', '•'),
 
-    # Combinations with moon and acute, grave, hook, tilde, dot
-    'Ắ': ('A', 'moon', 'acute'), 'ắ': ('a', 'moon', 'acute'),
-    'Ằ': ('A', 'moon', 'grave'), 'ằ': ('a', 'moon', 'grave'),
-    'Ẳ': ('A', 'moon', 'hook'), 'ẳ': ('a', 'moon', 'hook'),
-    'Ẵ': ('A', 'moon', 'tilde'), 'ẵ': ('a', 'moon', 'tilde'),
-    'Ặ': ('A', 'moon', 'dot'), 'ặ': ('a', 'moon', 'dot'),
+    # Combinations with ˅ and acute, grave, hook, ~, •
+    'Ắ': ('A', '˅', 'acute'), 'ắ': ('a', '˅', 'acute'),
+    'Ằ': ('A', '˅', 'grave'), 'ằ': ('a', '˅', 'grave'),
+    'Ẳ': ('A', '˅', 'hook'), 'ẳ': ('a', '˅', 'hook'),
+    'Ẵ': ('A', '˅', '~'), 'ẵ': ('a', '˅', '~'),
+    'Ặ': ('A', '˅', '•'), 'ặ': ('a', '˅', '•'),
 
     # Additional entries can be added for any specific use-cases or missing characters:
-    'Ế': ('E', 'circumflex', 'acute'), 'ế': ('e', 'circumflex', 'acute'),
-    'Ề': ('E', 'circumflex', 'grave'), 'ề': ('e', 'circumflex', 'grave'),
-    'Ể': ('E', 'circumflex', 'hook'), 'ể': ('e', 'circumflex', 'hook'),
-    'Ễ': ('E', 'circumflex', 'tilde'), 'ễ': ('e', 'circumflex', 'tilde'),
-    'Ệ': ('E', 'circumflex', 'dot'), 'ệ': ('e', 'circumflex', 'dot'),
+    'Ế': ('E', '^', 'acute'), 'ế': ('e', '^', 'acute'),
+    'Ề': ('E', '^', 'grave'), 'ề': ('e', '^', 'grave'),
+    'Ể': ('E', '^', 'hook'), 'ể': ('e', '^', 'hook'),
+    'Ễ': ('E', '^', '~'), 'ễ': ('e', '^', '~'),
+    'Ệ': ('E', '^', '•'), 'ệ': ('e', '^', '•'),
 
-    'Ố': ('O', 'circumflex', 'acute'), 'ố': ('o', 'circumflex', 'acute'),
-    'Ồ': ('O', 'circumflex', 'grave'), 'ồ': ('o', 'circumflex', 'grave'),
-    'Ổ': ('O', 'circumflex', 'hook'), 'ổ': ('o', 'circumflex', 'hook'),
-    'Ỗ': ('O', 'circumflex', 'tilde'), 'ỗ': ('o', 'circumflex', 'tilde'),
-    'Ộ': ('O', 'circumflex', 'dot'), 'ộ': ('o', 'circumflex', 'dot'),
+    'Ố': ('O', '^', 'acute'), 'ố': ('o', '^', 'acute'),
+    'Ồ': ('O', '^', 'grave'), 'ồ': ('o', '^', 'grave'),
+    'Ổ': ('O', '^', 'hook'), 'ổ': ('o', '^', 'hook'),
+    'Ỗ': ('O', '^', '~'), 'ỗ': ('o', '^', '~'),
+    'Ộ': ('O', '^', '•'), 'ộ': ('o', '^', '•'),
 
     # Additional diacritics or modified letters could be defined similarly,
     # ensuring all required combinations are covered.
