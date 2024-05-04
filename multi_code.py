@@ -4,7 +4,7 @@ import matplotlib.patches as Patches
 import numpy as np
 import math
 
-from PyQt5.QtCore import Qt, QThread, QTimer, QEventLoop, pyqtSignal
+from PyQt5.QtCore import Qt, QThread, QTimer, QEventLoop, pyqtSignal, QRegExp
 from PyQt5.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import (
     QTextEdit,
     QFileDialog,
 )
-from PyQt5.QtGui import QKeyEvent, QPainter, QPen, QColor
+from PyQt5.QtGui import QKeyEvent, QPainter, QPen, QColor, QRegExpValidator
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas, NavigationToolbar2QT
@@ -85,17 +85,16 @@ class SquareCodeGUI(QWidget):
             vbox.addWidget(label)
             vbox.addLayout(hbox)
 
-        self.line_width_slider = QSlider(Qt.Horizontal)
-        self.line_width_slider.setMinimum(0.1)
-        self.line_width_slider.setMaximum(2)
-        self.line_width_slider.setValue(1)
+        # Setting up a QLineEdit for line width input
+        self.line_width_edit = QLineEdit("1.0")
+        # Regex to allow only numbers and a single dot for decimal
+        reg_ex = QRegExp("^[0-9]*\.?[0-9]+$")
+        input_validator = QRegExpValidator(reg_ex, self.line_width_edit)
+        self.line_width_edit.setValidator(input_validator)
 
-        line_width_label = QLabel("Line Width: 1")
-        self.line_width_slider.valueChanged.connect(
-            lambda value: line_width_label.setText(f"Line Width: {value}"))
-
+        line_width_label = QLabel("Line Width")
         vbox.addWidget(line_width_label)
-        vbox.addWidget(self.line_width_slider)
+        vbox.addWidget(self.line_width_edit)
 
         main_layout.addLayout(vbox)
 
@@ -153,7 +152,8 @@ class SquareCodeGUI(QWidget):
         col_num = self.sliders_dict["col"].value()
         sentence = self.sentence_text.toPlainText()
         plot_sentence(self.canvas.axes, sentence, row_num, col_num,
-                      symbol_text=self.text_checkbox.isChecked(), line_width=self.line_width_slider.value())
+                      symbol_text=self.text_checkbox.isChecked(), line_width=float(self.line_width_edit.text()))
+        print(float(self.line_width_edit.text()))
         self.canvas.draw()
 
     def adjust_slider(self, value, slider_name):
@@ -279,7 +279,7 @@ def plot_sentence(ax, sentence, row_num=6, col_num=6, symbol_text=False, line_wi
         offset_y = (idx // col_num) * 3
         # Generate square with offset
         generate_alphabet_square(
-            ax, symbols_dict[char], offset_x, offset_y, symbol_text)
+            ax, symbols_dict[char], offset_x, offset_y, symbol_text, line_width=line_width)
 
     # Set the x-axis limits to accommodate all columns
     ax.set_xlim(0, col_num * 3)
