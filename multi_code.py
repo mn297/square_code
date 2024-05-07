@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import (
     QCheckBox,
     QTextEdit,
     QFileDialog,
+    QComboBox
 )
 from PyQt5.QtGui import QKeyEvent, QPainter, QPen, QColor, QRegExpValidator
 
@@ -68,7 +69,7 @@ class SquareCodeGUI(QWidget):
 
             slider = QSlider(Qt.Horizontal)
             slider.setMinimum(1)
-            slider.setMaximum(40)
+            slider.setMaximum(100)
             slider.setValue(6)
             slider.valueChanged.connect(
                 lambda value, k=key: self.update_label(k, value))
@@ -140,7 +141,51 @@ class SquareCodeGUI(QWidget):
 
         main_layout.addLayout(vbox)
 
+        vbox = QVBoxLayout()
+
+        # Dropdowns for color selection
+        self.default_color_set = False
+        self.color_combos = {}
+        color_labels = ['color_1', 'color_2', 'color_3']
+        for color_label in color_labels:
+            combo = QComboBox()
+            # Populate the dropdown with colors from color_dict
+            for color_name, color_hex in color_dict.items():
+                combo.addItem(f"{color_name} ({color_hex})", color_name)
+            combo.currentIndexChanged.connect(
+                self.color_changed)  # Connect to the handler
+            self.color_combos[color_label] = combo
+            vbox.addWidget(QLabel(f"Select {color_label}:"))
+            vbox.addWidget(combo)
+
+        for key, value in color_choice_dict.items():
+            idx = self.color_combos[key].findData(value)
+            self.color_combos[key].setCurrentIndex(idx)
+        self.default_color_set = True
+
+        # DEBUG
+        # print(self.color_combos)
+        # for key, combo in self.color_combos.items():
+        #     print(f"\nItems in {key}:")
+        #     for idx in range(combo.count()):
+        #         text = combo.itemText(idx)
+        #         data = combo.itemData(idx)
+        #         index_of_name = combo.findData(data)
+        #         print(
+        #             f"Index: {idx}, Text: {text}, Data: {data}, Index of data: {index_of_name}")
+
+        main_layout.addLayout(vbox)
+
         self.setLayout(main_layout)
+
+    def color_changed(self):
+        if not self.default_color_set:
+            return
+        # Update the color choices based on the selected item in each dropdown
+        for key, combo in self.color_combos.items():
+            color_name = combo.currentData()  # Get the selected color name
+            color_choice_dict[key] = color_name
+        print("Updated colors:", color_choice_dict)
 
     def update_label(self, key, value):
         self.labels_dict[key].setText(f"{key}: {value}")
@@ -158,8 +203,8 @@ class SquareCodeGUI(QWidget):
 
     def adjust_slider(self, value, slider_name):
         current_value = self.sliders_dict[slider_name].value()
-        # Clamp the value between 1 and 20
-        new_value = max(1, min(40, current_value + value))
+        # Clamp the value between 1 and 100
+        new_value = max(1, min(100, current_value + value))
         self.sliders_dict[slider_name].setValue(new_value)
 
     # Questionable function
@@ -294,13 +339,17 @@ def plot_sentence(ax, sentence, row_num=6, col_num=6, symbol_text=False, line_wi
 
 
 class SquareSymbol:
-    def __init__(self, symbol_txt, color_lst, case):
+    def __init__(self, symbol_txt, color_keys_lst, case):
         self.symbol_txt = symbol_txt
-        self.color_lst = color_lst
+        self.color_keys_lst = color_keys_lst
         self.case = case  # This is the new attribute for case number
 
+    # def get_color_lst(self):
+    #     return self.color_lst
+
     def get_color_lst(self):
-        return self.color_lst
+        # Dynamically retrieve current colors from the global dictionary
+        return [color_dict[color_choice_dict[key]] for key in self.color_keys_lst]
 
     def get_case(self):
         return self.case
@@ -316,93 +365,100 @@ color_dict = {
     'cyan': '#00FFFF',
     'white': '#FFFFFF',
     'grey': '#404040',
-    'black': '#000000'
+    'black': '#000000',
+    'custom': '#AABBCC'
+}
+
+color_choice_dict = {
+    'color_1': 'red',
+    'color_2': 'grey',
+    'color_3': 'white',
 }
 
 # Example usage with a list of colors
 # only use red, grey and white colors
 symbols_dict = {
-    'A': SquareSymbol('A', [color_dict['red'], color_dict['white'], color_dict['white'], color_dict['red'], color_dict['grey']], 1),
-    'B': SquareSymbol('B', [color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['grey']], 1),
-    'C': SquareSymbol('C', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['white']], 1),
-    'D': SquareSymbol('D', [color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['red'], color_dict['white']], 1),
-    'E': SquareSymbol('E', [color_dict['white'], color_dict['grey'], color_dict['grey'], color_dict['white'], color_dict['red']], 1),
-    'F': SquareSymbol('F', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['red']], 1),
-    'G': SquareSymbol('G', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['grey']], 1),
-    'H': SquareSymbol('H', [color_dict['white'], color_dict['red'], color_dict['red'], color_dict['white'], color_dict['grey']], 1),
-    'I': SquareSymbol('I', [color_dict['grey'], color_dict['red'], color_dict['red'], color_dict['grey'], color_dict['white']], 1),
-    'J': SquareSymbol('J', [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['white']], 1),
-    'K': SquareSymbol('K', [color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['red']], 1),
-    'L': SquareSymbol('L', [color_dict['grey'], color_dict['white'], color_dict['white'], color_dict['grey'], color_dict['red']], 1),
-    'M': SquareSymbol('M', [color_dict['red'], color_dict['white'], color_dict['white'], color_dict['grey'], color_dict['red']], 1),
-    'N': SquareSymbol('N', [color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['white'], color_dict['red']], 1),
-    'O': SquareSymbol('O', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['white'], color_dict['red']], 2),
-    'P': SquareSymbol('P', [color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['grey'], color_dict['red']], 2),
-    'Q': SquareSymbol('Q', [color_dict['white'], color_dict['grey'], color_dict['grey'], color_dict['red'], color_dict['white']], 1),
-    'R': SquareSymbol('R', [color_dict['white'], color_dict['red'], color_dict['red'], color_dict['grey'], color_dict['white']], 1),
-    'S': SquareSymbol('S', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['white']], 2),
-    'T': SquareSymbol('T', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['red'], color_dict['white']], 2),
-    'U': SquareSymbol('U', [color_dict['grey'], color_dict['red'], color_dict['red'], color_dict['white'], color_dict['grey']], 1),
-    'V': SquareSymbol('V', [color_dict['grey'], color_dict['white'], color_dict['white'], color_dict['red'], color_dict['grey']], 1),
-    'W': SquareSymbol('W', [color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['red'], color_dict['grey']], 2),
-    'X': SquareSymbol('X', [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['white'], color_dict['grey']], 2),
-    'Y': SquareSymbol('Y', [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['white'], color_dict['red']], 2),
-    'Z': SquareSymbol('Z', [color_dict['grey'], color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['red']], 2),
-    '0': SquareSymbol('0', [color_dict['white'], color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['red']], 2),
-    '1': SquareSymbol('1', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['red']], 2),
-    '2': SquareSymbol('2', [color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['grey'], color_dict['red']], 2),
-    '3': SquareSymbol('3', [color_dict['red'], color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['white']], 2),
-    '4': SquareSymbol('4', [color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['white']], 2),
-    '5': SquareSymbol('5', [color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['red'], color_dict['white']], 2),
-    '6': SquareSymbol('6', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['red'], color_dict['grey']], 2),
-    '7': SquareSymbol('7', [color_dict['white'], color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['grey']], 2),
-    '8': SquareSymbol('8', [color_dict['red'], color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['grey']], 2),
-    '9': SquareSymbol('9', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['white'], color_dict['grey']], 2),
+    'A': SquareSymbol('A', ['color_1', 'color_2', 'color_2', 'color_1', 'color_3'], 1),
+    'B': SquareSymbol('B', ['color_1', 'color_2', 'color_3', 'color_1', 'color_3'], 1),
+    'C': SquareSymbol('C', ['color_1', 'color_3', 'color_2', 'color_1', 'color_2'], 1),
+    'D': SquareSymbol('D', ['color_1', 'color_3', 'color_3', 'color_1', 'color_2'], 1),
+    'E': SquareSymbol('E', ['color_2', 'color_3', 'color_3', 'color_2', 'color_1'], 1),
+    'F': SquareSymbol('F', ['color_2', 'color_3', 'color_1', 'color_2', 'color_1'], 1),
+    'G': SquareSymbol('G', ['color_2', 'color_1', 'color_3', 'color_2', 'color_3'], 1),
+    'H': SquareSymbol('H', ['color_2', 'color_1', 'color_1', 'color_2', 'color_3'], 1),
+    'I': SquareSymbol('I', ['color_3', 'color_1', 'color_1', 'color_3', 'color_2'], 1),
+    'J': SquareSymbol('J', ['color_3', 'color_1', 'color_2', 'color_3', 'color_2'], 1),
+    'K': SquareSymbol('K', ['color_3', 'color_2', 'color_1', 'color_3', 'color_1'], 1),
+    'L': SquareSymbol('L', ['color_3', 'color_2', 'color_2', 'color_3', 'color_1'], 1),
+    'M': SquareSymbol('M', ['color_1', 'color_2', 'color_2', 'color_3', 'color_1'], 1),
+    'N': SquareSymbol('N', ['color_1', 'color_3', 'color_3', 'color_2', 'color_1'], 1),
+    'O': SquareSymbol('O', ['color_1', 'color_3', 'color_2', 'color_2', 'color_1'], 2),
+    'P': SquareSymbol('P', ['color_1', 'color_2', 'color_3', 'color_3', 'color_1'], 2),
+    'Q': SquareSymbol('Q', ['color_2', 'color_3', 'color_3', 'color_1', 'color_2'], 1),
+    'R': SquareSymbol('R', ['color_2', 'color_1', 'color_1', 'color_3', 'color_2'], 1),
+    'S': SquareSymbol('S', ['color_2', 'color_1', 'color_3', 'color_3', 'color_2'], 2),
+    'T': SquareSymbol('T', ['color_2', 'color_3', 'color_1', 'color_1', 'color_2'], 2),
+    'U': SquareSymbol('U', ['color_3', 'color_1', 'color_1', 'color_2', 'color_3'], 1),
+    'V': SquareSymbol('V', ['color_3', 'color_2', 'color_2', 'color_1', 'color_3'], 1),
+    'W': SquareSymbol('W', ['color_3', 'color_2', 'color_1', 'color_1', 'color_3'], 2),
+    'X': SquareSymbol('X', ['color_3', 'color_1', 'color_2', 'color_2', 'color_3'], 2),
+    'Y': SquareSymbol('Y', ['color_3', 'color_1', 'color_2', 'color_2', 'color_1'], 2),
+    'Z': SquareSymbol('Z', ['color_3', 'color_1', 'color_3', 'color_2', 'color_1'], 2),
+    '0': SquareSymbol('0', ['color_2', 'color_1', 'color_2', 'color_3', 'color_1'], 2),
+    '1': SquareSymbol('1', ['color_2', 'color_1', 'color_3', 'color_3', 'color_1'], 2),
+    '2': SquareSymbol('2', ['color_1', 'color_2', 'color_3', 'color_3', 'color_1'], 2),
+    '3': SquareSymbol('3', ['color_1', 'color_2', 'color_1', 'color_3', 'color_2'], 2),
+    '4': SquareSymbol('4', ['color_3', 'color_2', 'color_3', 'color_1', 'color_2'], 2),
+    '5': SquareSymbol('5', ['color_3', 'color_2', 'color_1', 'color_1', 'color_2'], 2),
+    '6': SquareSymbol('6', ['color_2', 'color_3', 'color_1', 'color_1', 'color_3'], 2),
+    '7': SquareSymbol('7', ['color_2', 'color_3', 'color_2', 'color_1', 'color_3'], 2),
+    '8': SquareSymbol('8', ['color_1', 'color_3', 'color_1', 'color_2', 'color_3'], 2),
+    '9': SquareSymbol('9', ['color_1', 'color_3', 'color_2', 'color_2', 'color_3'], 2),
 
-    '.': SquareSymbol('-', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['red'], color_dict['white']], 3),
-    ',': SquareSymbol(',', [color_dict['white'], color_dict['red'], color_dict['white'], color_dict['red'], color_dict['grey']], 3),
-    '?': SquareSymbol('?', [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['red'], color_dict['grey']], 3),
-    '!': SquareSymbol('!', [color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['white'], color_dict['grey']], 3),
-    '\'': SquareSymbol('\'', [color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['white'], color_dict['red']], 3),
-    '\"': SquareSymbol('\"', [color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['white'], color_dict['red']], 3),
-    '-': SquareSymbol('-', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red']], 3),
-    '/': SquareSymbol('/', [color_dict['red'], color_dict['grey'], color_dict['red'], color_dict['grey'], color_dict['white']], 3),
-    ':': SquareSymbol(':', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['grey'], color_dict['white']], 3),
-    ';': SquareSymbol(';', [color_dict['white'], color_dict['red'], color_dict['red'], color_dict['grey'], color_dict['white']], 4),
-    '(': SquareSymbol('(', [color_dict['grey'], color_dict['red'], color_dict['red'], color_dict['white'], color_dict['grey']], 4),
-    ')': SquareSymbol(')', [color_dict['grey'], color_dict['white'], color_dict['white'], color_dict['red'], color_dict['grey']], 4),
-    '&': SquareSymbol('&', [color_dict['red'], color_dict['white'], color_dict['white'], color_dict['grey'], color_dict['red']], 4),
-    '@': SquareSymbol('@', [color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['white'], color_dict['red']], 4),
-    '\\': SquareSymbol('\\', [color_dict['white'], color_dict['grey'], color_dict['grey'], color_dict['red'], color_dict['white']], 4),
-    '[': SquareSymbol('[', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['red'], color_dict['white']], 4),
-    ']': SquareSymbol(']', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['red'], color_dict['grey']], 4),
-    '{': SquareSymbol('{', [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['red'], color_dict['white']], 4),
-    '}': SquareSymbol('}', [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['red'], color_dict['grey']], 4),
-    '<': SquareSymbol('<', [color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['white'], color_dict['grey']], 4),
-    '>': SquareSymbol('>', [color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['white'], color_dict['red']], 4),
-    '#': SquareSymbol('#', [color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['white'], color_dict['grey']], 4),
-    '%': SquareSymbol('%', [color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['white'], color_dict['red']], 4),
-    '_': SquareSymbol('_', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red']], 4),
-    '*': SquareSymbol('*', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['white']], 4),
-    '+': SquareSymbol('+', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['grey'], color_dict['red']], 4),
-    '=': SquareSymbol('=', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['grey'], color_dict['white']], 4),
+    '.': SquareSymbol('-', ['color_2', 'color_1', 'color_3', 'color_1', 'color_2'], 3),
+    ',': SquareSymbol(',', ['color_2', 'color_1', 'color_2', 'color_1', 'color_3'], 3),
+    '?': SquareSymbol('?', ['color_3', 'color_1', 'color_2', 'color_1', 'color_3'], 3),
+    '!': SquareSymbol('!', ['color_3', 'color_2', 'color_1', 'color_2', 'color_3'], 3),
+    '\'': SquareSymbol('\'', ['color_3', 'color_2', 'color_3', 'color_2', 'color_1'], 3),
+    '\"': SquareSymbol('\"', ['color_1', 'color_2', 'color_3', 'color_2', 'color_1'], 3),
+    '-': SquareSymbol('-', ['color_1', 'color_3', 'color_2', 'color_3', 'color_1'], 3),
+    '/': SquareSymbol('/', ['color_1', 'color_3', 'color_1', 'color_3', 'color_2'], 3),
+    ':': SquareSymbol(':', ['color_2', 'color_3', 'color_1', 'color_3', 'color_2'], 3),
+    ';': SquareSymbol(';', ['color_2', 'color_1', 'color_1', 'color_3', 'color_2'], 4),
+    '(': SquareSymbol('(', ['color_3', 'color_1', 'color_1', 'color_2', 'color_3'], 4),
+    ')': SquareSymbol(')', ['color_3', 'color_2', 'color_2', 'color_1', 'color_3'], 4),
+    '&': SquareSymbol('&', ['color_1', 'color_2', 'color_2', 'color_3', 'color_1'], 4),
+    '@': SquareSymbol('@', ['color_1', 'color_3', 'color_3', 'color_2', 'color_1'], 4),
+    '\\': SquareSymbol('\\', ['color_2', 'color_3', 'color_3', 'color_1', 'color_2'], 4),
+    '[': SquareSymbol('[', ['color_2', 'color_1', 'color_3', 'color_1', 'color_2'], 4),
+    ']': SquareSymbol(']', ['color_2', 'color_1', 'color_3', 'color_1', 'color_3'], 4),
+    '{': SquareSymbol('{', ['color_3', 'color_1', 'color_2', 'color_1', 'color_2'], 4),
+    '}': SquareSymbol('}', ['color_3', 'color_1', 'color_2', 'color_1', 'color_3'], 4),
+    '<': SquareSymbol('<', ['color_3', 'color_2', 'color_1', 'color_2', 'color_3'], 4),
+    '>': SquareSymbol('>', ['color_3', 'color_2', 'color_1', 'color_2', 'color_1'], 4),
+    '#': SquareSymbol('#', ['color_1', 'color_2', 'color_3', 'color_2', 'color_3'], 4),
+    '%': SquareSymbol('%', ['color_1', 'color_2', 'color_3', 'color_2', 'color_1'], 4),
+    '_': SquareSymbol('_', ['color_1', 'color_3', 'color_2', 'color_3', 'color_1'], 4),
+    '*': SquareSymbol('*', ['color_1', 'color_3', 'color_2', 'color_3', 'color_2'], 4),
+    '+': SquareSymbol('+', ['color_2', 'color_3', 'color_1', 'color_3', 'color_1'], 4),
+    '=': SquareSymbol('=', ['color_2', 'color_3', 'color_1', 'color_3', 'color_2'], 4),
 
     # moon
-    '˅': SquareSymbol('˅', [color_dict['grey'], color_dict['red'], color_dict['grey'], color_dict['red'], color_dict['white']], 3),
+    '˅': SquareSymbol('˅', ['color_3', 'color_1', 'color_3', 'color_1', 'color_2'], 3),
     # circumflex
-    '^': SquareSymbol('^', [color_dict['red'], color_dict['white'], color_dict['red'], color_dict['white'], color_dict['grey']], 3),
+    '^': SquareSymbol('^', ['color_1', 'color_2', 'color_1', 'color_2', 'color_3'], 3),
     # horn
-    '◌̛': SquareSymbol('◌̛', [color_dict['white'], color_dict['grey'], color_dict['white'], color_dict['grey'], color_dict['red']], 3),
+    '◌̛': SquareSymbol('◌̛', ['color_2', 'color_3', 'color_2', 'color_3', 'color_1'], 3),
     # d_bar
-    'đ': SquareSymbol('đ', [color_dict['white'], color_dict['grey'], color_dict['red'], color_dict['red'], color_dict['white']], 3),
-    'acute': SquareSymbol('acute', [color_dict['grey'], color_dict['red'], color_dict['white'], color_dict['white'], color_dict['grey']], 3),
+    'đ': SquareSymbol('đ', ['color_2', 'color_3', 'color_1', 'color_1', 'color_2'], 3),
+    'acute': SquareSymbol('acute', ['color_3', 'color_1', 'color_2', 'color_2', 'color_3'], 3),
     # grave
-    '`': SquareSymbol('`', [color_dict['red'], color_dict['white'], color_dict['grey'], color_dict['grey'], color_dict['red']], 3),
+    '`': SquareSymbol('`', ['color_1', 'color_2', 'color_3', 'color_3', 'color_1'], 3),
     # hook
-    'ʔ': SquareSymbol('ʔ', [color_dict['red'], color_dict['grey'], color_dict['white'], color_dict['white'], color_dict['red']], 3),
+    'ʔ': SquareSymbol('ʔ', ['color_1', 'color_3', 'color_2', 'color_2', 'color_1'], 3),
     # dau nga (tilde)
-    '~': SquareSymbol('~', [color_dict['white'], color_dict['red'], color_dict['grey'], color_dict['grey'], color_dict['white']], 3),
-    '•': SquareSymbol('•', [color_dict['grey'], color_dict['white'], color_dict['red'], color_dict['red'], color_dict['grey']], 3),
+    '~': SquareSymbol('~', ['color_2', 'color_1', 'color_3', 'color_3', 'color_2'], 3),
+    '•': SquareSymbol('•', ['color_3', 'color_2', 'color_1', 'color_1', 'color_3'], 3),
 }
 
 
