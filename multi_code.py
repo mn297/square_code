@@ -371,8 +371,8 @@ color_dict = {
 
 color_choice_dict = {
     'color_1': 'red',
-    'color_2': 'grey',
-    'color_3': 'white',
+    'color_2': 'white',
+    'color_3': 'grey',
 }
 
 # Example usage with a list of colors
